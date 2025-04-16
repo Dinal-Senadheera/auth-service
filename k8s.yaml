@@ -34,7 +34,6 @@ metadata:
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-name: "auth-static-nlb"
     service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
-    service.beta.kubernetes.io/aws-load-balancer-eip-allocations: "eipalloc-0a59f669890d2a29c"
 spec:
   type: LoadBalancer
   selector:
