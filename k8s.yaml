@@ -32,11 +32,10 @@ kind: Service
 metadata:
   name: auth-service
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: auth
   ports:
   - protocol: TCP
-    port: 3010
+    port: 80
     targetPort: 3010
-    nodePort: 30010 
