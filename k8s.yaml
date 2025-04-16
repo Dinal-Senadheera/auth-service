@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-deployment
+  labels:
+    app: auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+      - name: auth
+        image: dinalsenadheera/ctse-assignment-as:latest
+        ports:
+        - containerPort: 3010
+        env:
+        - name: MONGO_URI
+          value: "mongodb+srv://Dinal:mxm81632@cluster0.bzuizxa.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+        - name: PORT
+          value: "3010"
+        - name: NODE_ENV
+          value: "production"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+spec:
+  type: NodePort
+  selector:
+    app: auth
+  ports:
+  - protocol: TCP
+    port: 3010
+    targetPort: 3010
+    nodePort: 30010 

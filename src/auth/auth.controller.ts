@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { HttpService } from '@nestjs/axios';
-import { Controller, Headers, HttpException, Post } from '@nestjs/common';
+import { Controller, Headers, Post } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 @Controller('auth')
@@ -14,9 +14,6 @@ export class AuthController {
   // This route is called when the user logs in with Google
   @Post('login')
   async login(@Headers('access_token') accessToken: string): Promise<any> {
-    if (!accessToken) {
-      throw new HttpException('Access token is required', 400);
-    }
     const userInfoUrl = `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${accessToken}`;
 
     try {
@@ -41,12 +38,12 @@ export class AuthController {
           return { success: true };
         }
       } catch (error) {
-        throw new HttpException('Failed to create user', 500);
+        return { success: false, error: 'Failed to create new user' };
       }
 
       return { success: true };
     } catch (error) {
-      throw new HttpException('Failed to get user info', 500);
+      return { success: false, error: 'Failed to fetch user data' };
     }
   }
 }

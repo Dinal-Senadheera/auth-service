@@ -1,0 +1,10 @@
+services:
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: auth-service
+    ports:
+      - '3010:3010'
+    environment:
+      - MONGO_URI=mongodb+srv://Dinal:mxm81632@cluster0.bzuizxa.mongodb.net/Course_Management_Service?retryWrites=true&w=majority&appName=Cluster0

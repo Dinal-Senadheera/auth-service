@@ -1,17 +1,9 @@
 /* eslint-disable prettier/prettier */
-import {
-  Controller,
-  Get,
-  Body,
-  Patch,
-  Delete,
-  HttpException,
-} from '@nestjs/common';
-import { UserService } from './user.service';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { HttpService } from '@nestjs/axios';
+import { Body, Controller, Delete, Get, Headers, Patch } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Headers } from '@nestjs/common';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
@@ -23,12 +15,6 @@ export class UserController {
   // This route is called when the user logs in with Google
   @Get()
   async UserByAccessToken(@Body() accessToken: string) {
-    if (!accessToken) {
-      throw new HttpException('Access token is required', 400);
-    }
-
-    
-
     const userInfoUrl = `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${accessToken}`;
     const response = await this.httpService.get(userInfoUrl).toPromise();
     const userData = response.data;
@@ -51,7 +37,7 @@ export class UserController {
 
       return userExists;
     } catch (error) {
-      throw new HttpException('Failed to update user', 500);
+      return { success: false, error: 'Failed to fetch user data' };
     }
   }
 
@@ -62,12 +48,12 @@ export class UserController {
     const user = await this.userService.findOne(email);
 
     if (user.role !== 'ADMIN') {
-      throw new HttpException('Unauthorized', 401);
+      return { success: false, error: 'You are not allowed to access' };
     }
     try {
       return this.userService.findAll();
     } catch (error) {
-      throw new HttpException('Failed to fetch users', 500);
+      return { success: false, error: 'Failed to fetch user data' };
     }
   }
 
@@ -78,7 +64,7 @@ export class UserController {
     try {
       return this.userService.findOne(email);
     } catch (error) {
-      throw new HttpException('Failed to fetch user', 500);
+      return { success: false, error: 'Failed to fetch user data' };
     }
   }
 
@@ -92,7 +78,7 @@ export class UserController {
     try {
       return this.userService.update(email, updateUserDto);
     } catch (error) {
-      throw new HttpException('Failed to update user', 500);
+      return { success: false, error: 'Failed to update user data' };
     }
   }
 
@@ -105,7 +91,7 @@ export class UserController {
     try {
       return this.userService.remove(id);
     } catch (error) {
-      throw new HttpException('Failed to delete user', 500);
+      return { success: false, error: 'Failed to delete user data' };
     }
   }
 }
