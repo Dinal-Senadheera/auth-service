@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Controller, Get, Headers, Query, Redirect, Res } from '@nestjs/common';
+import { Controller, Get, Headers, Query, Res } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 
@@ -13,25 +13,35 @@ export class AuthController {
 
   // Step 1: Redirect user to Google login
   @Get('google')
-  @Redirect()
-  googleAuth() {
+  async googleAuth(@Res() res) {
     try {
       const clientId = process.env.GOOGLE_CLIENT_ID;
       const redirectUri = encodeURIComponent(
         `${process.env.API_BASE_URL}/api/auth/google/callback`,
       );
       const scope = encodeURIComponent('profile email');
-      console.log('Redirecting to Google login', redirectUri, scope, clientId);
-      return {
-        url: `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`,
-        statusCode: 302,
-      };
+
+      // Add detailed logging for debugging
+      console.log('Google OAuth Debug:', {
+        API_BASE_URL: process.env.API_BASE_URL,
+        fullRedirectUri: `${process.env.API_BASE_URL}/api/auth/google/callback`,
+        encodedRedirectUri: redirectUri,
+        clientId: clientId?.substring(0, 8) + '...', // Log partial ID for security
+      });
+
+      // Build the Google OAuth URL
+      const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`;
+
+      console.log('Google Auth URL:', googleAuthUrl);
+      // Still perform the redirect, but with more control
+      return res.redirect(302, googleAuthUrl);
     } catch (error) {
       console.error('Error in Google Auth:', error);
-      return {
-        url: '/api/auth/error',
-        statusCode: 500,
-      };
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to generate Google authentication URL',
+        error: error.message,
+      });
     }
   }
 
