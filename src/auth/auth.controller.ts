@@ -20,7 +20,7 @@ export class AuthController {
       const redirectUri = encodeURIComponent(
         `${process.env.API_BASE_URL}/api/auth/google/callback`,
       );
-      const scope = encodeURIComponent('openid profile email');
+      const scope = encodeURIComponent('profile email');
       console.log('Redirecting to Google login', redirectUri, scope, clientId);
       return {
         url: `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`,
