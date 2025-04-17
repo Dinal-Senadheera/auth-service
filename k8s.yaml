@@ -39,7 +39,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: auth-secrets
-                  key: GOOGLE_CLIENT_SECRE
+                  key: GOOGLE_CLIENT_SECRET
             - name: API_BASE_URL
               valueFrom:
                 secretKeyRef:
