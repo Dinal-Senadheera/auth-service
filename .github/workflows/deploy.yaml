@@ -3,7 +3,7 @@ name: Build, Push, and Deploy to EKS
 on:
   push:
     branches:
-      - develop
+      - auth-test
 
 jobs:
   build-and-push:
@@ -50,6 +50,15 @@ jobs:
       - name: Update kubeconfig for EKS
         run: |
           aws eks update-kubeconfig --region eu-north-1 --name course-microservices-cluster
+
+      - name: Create Kubernetes secrets
+        run: |
+          kubectl create secret generic auth-secrets \
+            --from-literal=GOOGLE_CLIENT_ID='${{ secrets.GOOGLE_CLIENT_ID }}' \
+            --from-literal=GOOGLE_CLIENT_SECRET='${{ secrets.GOOGLE_CLIENT_SECRET }}' \
+            --from-literal=API_BASE_URL='${{ secrets.API_BASE_URL }}' \
+            -n ctse-microservices \
+            --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Apply Kubernetes Deployment
         run: |

@@ -14,6 +14,7 @@ export class UserService {
     const newUser = {
       fullName: `${userData.given_name} ${userData.family_name}`,
       email: userData.email,
+      role: 'USER',
     };
 
     const createdUser = await this.userModel.create(newUser);

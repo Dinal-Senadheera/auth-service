@@ -30,6 +30,21 @@ spec:
               value: '3010'
             - name: NODE_ENV
               value: 'production'
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: GOOGLE_CLIENT_ID
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: GOOGLE_CLIENT_SECRE
+            - name: API_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: API_BASE_URL
 ---
 apiVersion: v1
 kind: Service
