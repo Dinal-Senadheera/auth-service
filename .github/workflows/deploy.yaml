@@ -57,6 +57,6 @@ jobs:
 
       - name: Verify Deployment
         run: |
-          kubectl rollout status deployment/auth-management-deploy
+          kubectl rollout status deployment/auth-deploy
           kubectl get pods
           kubectl get svc
