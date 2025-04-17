@@ -15,6 +15,7 @@ export class AuthController {
   @Post('login')
   async login(@Headers('access_token') accessToken: string): Promise<any> {
     const userInfoUrl = `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${accessToken}`;
+    console.log('Access Token:', accessToken);
 
     try {
       const response = await this.httpService.get(userInfoUrl).toPromise();
@@ -38,11 +39,13 @@ export class AuthController {
           return { success: true };
         }
       } catch (error) {
+        console.error('Error creating new user:', error);
         return { success: false, error: 'Failed to create new user' };
       }
 
       return { success: true };
     } catch (error) {
+      console.error('Error fetching user data:', error);
       return { success: false, error: 'Failed to fetch user data' };
     }
   }
