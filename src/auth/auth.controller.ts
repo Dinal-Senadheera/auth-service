@@ -15,16 +15,24 @@ export class AuthController {
   @Get('google')
   @Redirect()
   googleAuth() {
-    const clientId = process.env.GOOGLE_CLIENT_ID;
-    const redirectUri = encodeURIComponent(
-      `${process.env.API_BASE_URL}/api/auth/google/callback`,
-    );
-    const scope = encodeURIComponent('openid profile email');
-    console.log('Redirecting to Google login', redirectUri, scope);
-    return {
-      url: `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`,
-      statusCode: 302,
-    };
+    try {
+      const clientId = process.env.GOOGLE_CLIENT_ID;
+      const redirectUri = encodeURIComponent(
+        `${process.env.API_BASE_URL}/api/auth/google/callback`,
+      );
+      const scope = encodeURIComponent('openid profile email');
+      console.log('Redirecting to Google login', redirectUri, scope);
+      return {
+        url: `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`,
+        statusCode: 302,
+      };
+    } catch (error) {
+      console.error('Error in Google Auth:', error);
+      return {
+        url: '/api/auth/error',
+        statusCode: 500,
+      };
+    }
   }
 
   // Step 2: Handle the callback from Google
