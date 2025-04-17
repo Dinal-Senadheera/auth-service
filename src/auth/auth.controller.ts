@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Controller, Get, Headers, Query, Redirect, Res } from '@nestjs/common';
+import { Controller, Get, Headers, Redirect, Res } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 
@@ -29,7 +29,7 @@ export class AuthController {
 
   // Step 2: Handle the callback from Google
   @Get('google/callback')
-  async googleCallback(@Query('code') code: string, @Res() res) {
+  async googleCallback(@Headers('code') code: string, @Res() res) {
     try {
       console.log('Google callback code:', code);
 
