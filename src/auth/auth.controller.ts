@@ -100,8 +100,12 @@ export class AuthController {
 
       console.log('Setting cookie:', cookieOptions);
 
-      // Redirect to a success page
-      return res.redirect('/api/auth/success');
+      return {
+        success: true,
+        message: 'Authentication successful',
+        note: 'You can now access protected resources.',
+        token,
+      };
     } catch (error) {
       console.error('Error in Google callback:', error);
       return res
