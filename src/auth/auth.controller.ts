@@ -88,14 +88,14 @@ export class AuthController {
 
       const token = await this.jwtService.signAsync(payload);
 
-      // Set token as a cookie
-      res.cookie('auth_token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // Only HTTPS in production
-        sameSite: 'none',
-        domain: process.env.API_BASE_URL,
-        path: '/',
-        maxAge: 24 * 60 * 60 * 1000, // 1 day
+      res.header(
+        'Set-Cookie',
+        `auth_token=${token}; HttpOnly; Path=/; Max-Age=${24 * 60 * 60}; ${process.env.NODE_ENV === 'production' ? 'Secure; SameSite=None' : 'SameSite=Lax'}`,
+      );
+
+      console.log('Setting cookie:', {
+        name: 'auth_token',
+        headers: res.getHeaders ? res.getHeaders() : 'Headers not available',
       });
 
       // Redirect to a success page
