@@ -123,7 +123,6 @@ export class AuthController {
 
   @Get('success')
   successPage(@Req() req) {
-    req.cookies.auth_token = req.cookies.auth_token || null;
     console.log('Cookies:', req.cookies);
     console.log('Request Headers:', req.headers);
 
