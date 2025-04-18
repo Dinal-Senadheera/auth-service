@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Controller, Get, Headers, Query, Res } from '@nestjs/common';
+import { Controller, Get, Headers, Query, Req, Res } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 
@@ -122,7 +122,11 @@ export class AuthController {
   }
 
   @Get('success')
-  successPage() {
+  successPage(@Req() req) {
+    req.cookies.auth_token = req.cookies.auth_token || null;
+    console.log('Cookies:', req.cookies);
+    console.log('Request Headers:', req.headers);
+
     return {
       success: true,
       message: 'You have successfully authenticated with Google!',
