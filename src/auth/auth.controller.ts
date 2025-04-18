@@ -100,12 +100,12 @@ export class AuthController {
 
       console.log('Setting cookie:', cookieOptions);
 
-      return {
+      res.status(200).json({
         success: true,
         message: 'Authentication successful',
         note: 'You can now access protected resources.',
         token,
-      };
+      });
     } catch (error) {
       console.error('Error in Google callback:', error);
       return res
