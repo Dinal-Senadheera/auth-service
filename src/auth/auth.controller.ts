@@ -1,6 +1,6 @@
 import { HttpService } from '@nestjs/axios';
-import { Controller, Get, Headers, Query, Req, Res } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { Controller, Get, Query, Req, Res } from '@nestjs/common';
+import * as jwt from 'jsonwebtoken';
 import { UserService } from 'src/user/user.service';
 
 @Controller('auth')
@@ -8,7 +8,6 @@ export class AuthController {
   constructor(
     private readonly httpService: HttpService,
     private readonly userService: UserService,
-    private readonly jwtService: JwtService,
   ) {}
 
   // Step 1: Redirect user to Google login
@@ -50,7 +49,6 @@ export class AuthController {
   async googleCallback(@Query('code') code: string, @Res() res) {
     try {
       console.log('Google callback code:', code);
-
       // Exchange authorization code for tokens
       const tokenResponse = await this.httpService
         .post('https://oauth2.googleapis.com/token', {
@@ -84,9 +82,11 @@ export class AuthController {
         sub: user.fullName,
         email: userData.email,
         role: user.role,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // 24 hours expiration
       };
 
-      const token = await this.jwtService.signAsync(payload);
+      const token = jwt.sign(payload, process.env.JWT_SECRET);
 
       const domainName = new URL(process.env.API_BASE_URL).hostname;
       const cookieOptions = {
@@ -96,8 +96,8 @@ export class AuthController {
         sameSite: 'lax',
         domain: domainName,
       };
-      res.cookie('auth_token', token, cookieOptions);
 
+      res.cookie('auth_token', token, cookieOptions);
       console.log('Setting cookie:', cookieOptions);
 
       res.status(200).json({
@@ -111,19 +111,6 @@ export class AuthController {
       return res
         .status(500)
         .json({ success: false, error: 'Authentication failed' });
-    }
-  }
-
-  // Optional endpoint to check authentication status
-  @Get('status')
-  authStatus(@Headers('Authorization') auth: string) {
-    if (!auth) return { authenticated: false };
-    try {
-      const token = auth.split(' ')[1];
-      const payload = this.jwtService.verify(token);
-      return { authenticated: true, user: payload };
-    } catch (e) {
-      return { authenticated: false };
     }
   }
 
