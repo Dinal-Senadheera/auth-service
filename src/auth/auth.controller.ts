@@ -90,7 +90,7 @@ export class AuthController {
 
       res.header(
         'Set-Cookie',
-        `auth_token=${token}; HttpOnly; Path=/; Max-Age=${24 * 60 * 60}; ${process.env.NODE_ENV === 'production' ? 'Secure; SameSite=None' : 'SameSite=Lax'}`,
+        `auth_token=${token}; HttpOnly; Path=/; Max-Age=${24 * 60 * 60}; 'SameSite=Lax'`,
       );
 
       console.log('Setting cookie:', {
