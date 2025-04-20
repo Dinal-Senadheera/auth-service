@@ -58,6 +58,7 @@ jobs:
             --from-literal=GOOGLE_CLIENT_SECRET='${{ secrets.GOOGLE_CLIENT_SECRET }}' \
             --from-literal=API_BASE_URL='${{ secrets.API_BASE_URL }}' \
             --from-literal=JWT_SECRET='${{ secrets.JWT_SECRET }}' \
+            --from-literal=MONGO_URI='${{ secrets.MONGO_URI }}' \
             -n ctse-microservices \
             --dry-run=client -o yaml | kubectl apply -f -
 
