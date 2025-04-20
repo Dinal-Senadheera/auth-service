@@ -1,10 +1,12 @@
 import { HttpService } from '@nestjs/axios';
-import { Controller, Get, Query, Req, Res } from '@nestjs/common';
+import { Controller, Get, Logger, Query, Res } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { UserService } from 'src/user/user.service';
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(
     private readonly httpService: HttpService,
     private readonly userService: UserService,
@@ -20,22 +22,15 @@ export class AuthController {
       );
       const scope = encodeURIComponent('profile email');
 
-      // Add detailed logging for debugging
-      console.log('Google OAuth Debug:', {
-        API_BASE_URL: process.env.API_BASE_URL,
-        fullRedirectUri: `${process.env.API_BASE_URL}/api/auth/google/callback`,
-        encodedRedirectUri: redirectUri,
-        clientId: clientId?.substring(0, 8) + '...', // Log partial ID for security
-      });
+      this.logger.debug('Initiating Google OAuth flow');
 
       // Build the Google OAuth URL
       const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`;
 
-      console.log('Google Auth URL:', googleAuthUrl);
-      // Still perform the redirect, but with more control
+      this.logger.debug('Redirecting to Google Auth URL');
       return res.redirect(302, googleAuthUrl);
     } catch (error) {
-      console.error('Error in Google Auth:', error);
+      this.logger.error(`Error in Google Auth: ${error.message}`, error.stack);
       return res.status(500).json({
         success: false,
         message: 'Failed to generate Google authentication URL',
@@ -48,8 +43,8 @@ export class AuthController {
   @Get('google/callback')
   async googleCallback(@Query('code') code: string, @Res() res) {
     try {
-      console.log('Google callback code:', code);
-      // Exchange authorization code for tokens
+      this.logger.debug('Received Google callback with authorization code');
+
       const tokenResponse = await this.httpService
         .post('https://oauth2.googleapis.com/token', {
           client_id: process.env.GOOGLE_CLIENT_ID,
@@ -60,9 +55,9 @@ export class AuthController {
         })
         .toPromise();
 
+      this.logger.debug('Successfully exchanged authorization code for token');
       const { access_token } = tokenResponse.data;
 
-      // Use the access token to get user info
       const userInfoResponse = await this.httpService
         .get('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: {
@@ -72,10 +67,20 @@ export class AuthController {
         .toPromise();
 
       const userData = userInfoResponse.data;
+
+      const maskedEmail = userData.email
+        ? `${userData.email.substring(0, 2)}***@${userData.email.split('@')[1]}`
+        : 'unknown';
+
+      this.logger.debug(`Retrieved Google user data for: ${maskedEmail}`);
+
       let user = await this.userService.findOne(userData.email);
 
       if (!user) {
+        this.logger.debug(`Creating new user account`);
         user = await this.userService.create(userData);
+      } else {
+        this.logger.debug(`Found existing user account`);
       }
 
       const payload = {
@@ -98,7 +103,7 @@ export class AuthController {
       };
 
       res.cookie('auth_token', token, cookieOptions);
-      console.log('Setting cookie:', cookieOptions);
+      this.logger.debug('Authentication cookie set successfully');
 
       res.status(200).json({
         success: true,
@@ -107,26 +112,13 @@ export class AuthController {
         token,
       });
     } catch (error) {
-      console.error('Error in Google callback:', error);
+      this.logger.error(
+        `Error in Google callback: ${error.message}`,
+        error.stack,
+      );
       return res
         .status(500)
         .json({ success: false, error: 'Authentication failed' });
     }
-  }
-
-  @Get('success')
-  successPage(@Req() req) {
-    console.log('Cookies:', req.cookies);
-    console.log('Request Headers:', req.headers);
-
-    return {
-      success: true,
-      message: 'You have successfully authenticated with Google!',
-      note: 'Your authentication token has been stored as a cookie. You can now access protected resources.',
-      suggestedEndpoints: [
-        { name: 'Check Auth Status', url: '/api/auth/status' },
-        { name: 'View Courses', url: '/api/courses' },
-      ],
-    };
   }
 }
