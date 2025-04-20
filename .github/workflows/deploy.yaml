@@ -3,7 +3,7 @@ name: Build, Push, and Deploy to EKS
 on:
   push:
     branches:
-      - auth-test
+      - develop
 
 jobs:
   build-and-push:
