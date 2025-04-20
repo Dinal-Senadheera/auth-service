@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-deploy
+  namespace: ctse-microservices
+  labels:
+    app: auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: dinalsenadheera/ctse-assignment-as:latest
+          ports:
+            - containerPort: 3010
+          env:
+            - name: PORT
+              value: '3010'
+            - name: NODE_ENV
+              value: 'production'
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: MONGO_URI
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: GOOGLE_CLIENT_ID
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: GOOGLE_CLIENT_SECRET
+            - name: API_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: API_BASE_URL
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: JWT_SECRET
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: ctse-microservices
+spec:
+  type: ClusterIP
+  selector:
+    app: auth
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3010
