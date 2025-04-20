@@ -21,15 +21,35 @@ spec:
           ports:
             - containerPort: 3010
           env:
-            - name: MONGO_URI
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: auth-mongo-uri
             - name: PORT
               value: '3010'
             - name: NODE_ENV
               value: 'production'
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: MONGO_URI
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: GOOGLE_CLIENT_ID
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: GOOGLE_CLIENT_SECRET
+            - name: API_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: API_BASE_URL
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: JWT_SECRET
 ---
 apiVersion: v1
 kind: Service

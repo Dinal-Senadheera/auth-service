@@ -61,12 +61,24 @@ jobs:
         run: |
           aws eks update-kubeconfig --region eu-north-1 --name course-microservices-cluster
 
+      - name: Create Kubernetes secrets
+        run: |
+          kubectl create secret generic auth-secrets \
+            --from-literal=GOOGLE_CLIENT_ID='${{ secrets.GOOGLE_CLIENT_ID }}' \
+            --from-literal=GOOGLE_CLIENT_SECRET='${{ secrets.GOOGLE_CLIENT_SECRET }}' \
+            --from-literal=API_BASE_URL='${{ secrets.API_BASE_URL }}' \
+            --from-literal=JWT_SECRET='${{ secrets.JWT_SECRET }}' \
+            --from-literal=MONGO_URI='${{ secrets.MONGO_URI }}' \
+            -n ctse-microservices \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Apply Kubernetes Deployment
         run: |
           kubectl apply -f k8s.yaml
 
       - name: Verify Deployment
         run: |
+          kubectl rollout restart deployment/auth-deploy -n ctse-microservices
           kubectl rollout status deployment/auth-deploy -n ctse-microservices
           kubectl get pods -n ctse-microservices
           kubectl get svc -n ctse-microservices
