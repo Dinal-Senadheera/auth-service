@@ -23,6 +23,16 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/ctse-assignment-as:latest .
 
+      - name: Trivy Scan for Vulnerabilities
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: '${{ secrets.DOCKER_HUB_USERNAME }}/ctse-assignment-cms:${{ steps.get_commit.outputs.commit }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
       - name: Push Docker image
         run: |
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/ctse-assignment-as:latest
