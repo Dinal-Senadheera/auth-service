@@ -29,7 +29,7 @@
     "@nestjs/microservices": "^10.3.8",
     "@nestjs/mongoose": "^10.0.6",
     "@nestjs/passport": "^10.0.3",
-    "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-express": "^11.0.13",
     "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.4",
     "axios": "^1.6.8",
